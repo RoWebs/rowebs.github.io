@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ro Cart — Roblox Developer Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --neon: #00FFB2;
+    --neon2: #FF3C6B;
+    --bg: #080C14;
+    --surface: #0D1521;
+    --surface2: #121C2E;
+    --border: rgba(0,255,178,0.15);
+    --border2: rgba(0,255,178,0.35);
+    --text: #E8F0FF;
+    --muted: #7A8FAA;
+    --accent: #1AFFB2;
+  }
+
+  /* CUSTOM CURSOR — desktop only */
+  @media (pointer: fine) {
+    * { cursor: none !important; }
+    #cursor {
+      position: fixed;
+      width: 12px; height: 12px;
+      background: var(--neon);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 99999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.08s ease, background 0.2s, width 0.2s, height 0.2s, opacity 0.2s;
+      box-shadow: 0 0 12px var(--neon), 0 0 30px rgba(0,255,178,0.3);
+      mix-blend-mode: screen;
+    }
+    #cursor-ring {
+      position: fixed;
+      width: 36px; height: 36px;
+      border: 1.5px solid rgba(0,255,178,0.5);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 99998;
+      transform: translate(-50%, -50%);
+      transition: transform 0.18s ease, width 0.25s ease, height 0.25s ease, border-color 0.2s, opacity 0.3s;
+    }
+    #cursor.hovered { width: 6px; height: 6px; background: var(--neon2); box-shadow: 0 0 20px var(--neon2); }
+    #cursor-ring.hovered { width: 56px; height: 56px; border-color: rgba(255,60,107,0.6); }
+    #cursor.clicked { transform: translate(-50%, -50%) scale(0.6); }
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Exo 2', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    line-height: 1.6;
+  }
+
+  /* GRID BACKGROUND */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,255,178,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,178,0.025) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* SCANLINE overlay */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.07) 2px,
+      rgba(0,0,0,0.07) 4px
+    );
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 1.5rem 5rem;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* ====== NAV ====== */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(8,12,20,0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0.9rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .nav-logo {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: var(--neon);
+    letter-spacing: 2px;
+    text-shadow: 0 0 15px rgba(0,255,178,0.4);
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 1.5rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color 0.2s;
+    position: relative;
+    padding-bottom: 2px;
+  }
+
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 0; height: 1px;
+    background: var(--neon);
+    transition: width 0.3s ease;
+  }
+
+  .nav-links a:hover { color: var(--neon); }
+  .nav-links a:hover::after { width: 100%; }
+
+  .nav-burger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    background: none;
+    border: none;
+    padding: 4px;
+  }
+
+  .nav-burger span {
+    display: block;
+    width: 22px; height: 2px;
+    background: var(--neon);
+    border-radius: 2px;
+    transition: all 0.3s;
+  }
+
+  .mobile-menu {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(8,12,20,0.97);
+    z-index: 200;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2.5rem;
+  }
+
+  .mobile-menu.open { display: flex; }
+
+  .mobile-menu a {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text);
+    text-decoration: none;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+
+  .mobile-menu a:hover { color: var(--neon); }
+
+  .menu-close {
+    position: absolute;
+    top: 1.2rem; right: 1.5rem;
+    background: none; border: none;
+    color: var(--neon);
+    font-size: 2rem;
+    line-height: 1;
+  }
+
+  @media (max-width: 640px) {
+    .nav-links { display: none; }
+    .nav-burger { display: flex; }
+  }
+
+  /* ====== HERO ====== */
+  .hero {
+    min-height: 92vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 4rem 1rem 3rem;
+    position: relative;
+  }
+
+  /* Radial glow behind name */
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -55%);
+    width: 600px; height: 400px;
+    background: radial-gradient(ellipse, rgba(0,255,178,0.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .badge {
+    display: inline-block;
+    background: rgba(0,255,178,0.08);
+    border: 1px solid var(--border2);
+    color: var(--neon);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    padding: 6px 18px;
+    border-radius: 2px;
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+    opacity: 0;
+    animation: fadeUp 0.6s ease 0.1s forwards;
+  }
+
+  .hero-name {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: clamp(4rem, 14vw, 8rem);
+    font-weight: 700;
+    line-height: 0.9;
+    letter-spacing: -2px;
+    color: #fff;
+    text-shadow: 0 0 80px rgba(0,255,178,0.15);
+    margin-bottom: 0.6rem;
+    opacity: 0;
+    animation: fadeUp 0.7s ease 0.25s forwards;
+  }
+
+  .hero-name .highlight {
+    color: var(--neon);
+    text-shadow: 0 0 40px rgba(0,255,178,0.6), 0 0 80px rgba(0,255,178,0.2);
+    position: relative;
+  }
+
+  /* glitch effect on hover */
+  .hero-name .highlight:hover {
+    animation: glitch 0.4s steps(2, end) 0s 1;
+  }
+
+  @keyframes glitch {
+    0%   { text-shadow: 2px 0 var(--neon2), -2px 0 var(--neon); }
+    25%  { text-shadow: -2px 0 var(--neon2), 2px 0 var(--neon); }
+    50%  { text-shadow: 2px 2px var(--neon2), -2px -2px var(--neon); }
+    75%  { text-shadow: -2px 2px var(--neon2), 2px -2px var(--neon); }
+    100% { text-shadow: 0 0 40px rgba(0,255,178,0.6); }
+  }
+
+  .hero-title {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: clamp(10px, 2vw, 13px);
+    color: var(--muted);
+    letter-spacing: 3px;
+    margin-bottom: 2rem;
+    opacity: 0;
+    animation: fadeUp 0.7s ease 0.4s forwards;
+  }
+
+  .hero-meta {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 2.5rem;
+    opacity: 0;
+    animation: fadeUp 0.7s ease 0.55s forwards;
+  }
+
+  .meta-pill {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  .meta-pill::before {
+    content: '';
+    width: 5px; height: 5px;
+    background: var(--neon);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--neon);
+    animation: pulse 2s infinite;
+  }
+
+  .hero-cta {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    opacity: 0;
+    animation: fadeUp 0.7s ease 0.7s forwards;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 28px;
+    border-radius: 2px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: all 0.25s ease;
+    border: 1px solid transparent;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--neon);
+    transform: translateX(-101%);
+    transition: transform 0.3s ease;
+    z-index: 0;
+  }
+
+  .btn span { position: relative; z-index: 1; }
+
+  .btn-primary {
+    background: var(--neon);
+    color: #080C14;
+    font-weight: 700;
+    border-color: var(--neon);
+  }
+
+  .btn-primary:hover {
+    box-shadow: 0 0 30px rgba(0,255,178,0.5), 0 0 60px rgba(0,255,178,0.15);
+    transform: translateY(-2px);
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--neon);
+    border-color: rgba(0,255,178,0.35);
+  }
+
+  .btn-ghost:hover {
+    background: rgba(0,255,178,0.08);
+    transform: translateY(-2px);
+    box-shadow: 0 0 20px rgba(0,255,178,0.1);
+  }
+
+  /* scroll indicator */
+  .scroll-hint {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    opacity: 0;
+    animation: fadeIn 1s ease 1.5s forwards;
+  }
+
+  .scroll-hint span {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .scroll-arrow {
+    width: 1px; height: 40px;
+    background: linear-gradient(to bottom, var(--neon), transparent);
+    animation: scrollBounce 1.5s ease infinite;
+  }
+
+  @keyframes scrollBounce {
+    0%, 100% { transform: scaleY(1); opacity: 1; }
+    50% { transform: scaleY(0.6); opacity: 0.4; }
+  }
+
+  .divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border2), transparent);
+    margin: 0 0 4rem;
+  }
+
+  /* ====== SECTIONS ====== */
+  section { margin-bottom: 5rem; }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .section-num {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--neon);
+    letter-spacing: 2px;
+    flex-shrink: 0;
+  }
+
+  .section-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: clamp(1.4rem, 4vw, 1.8rem);
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 1px;
+  }
+
+  .section-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* SCROLL REVEAL */
+  .reveal {
+    opacity: 0;
+    transform: translateY(32px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.3s; }
+  .reveal-delay-4 { transition-delay: 0.4s; }
+
+  /* ====== STATS ====== */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+
+  .stat-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.5rem 1rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s, transform 0.3s;
+  }
+
+  .stat-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--neon);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+  }
+
+  .stat-card:hover { border-color: var(--border2); transform: translateY(-4px); }
+  .stat-card:hover::after { transform: scaleX(1); }
+
+  .stat-num {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: var(--neon);
+    line-height: 1;
+    text-shadow: 0 0 25px rgba(0,255,178,0.4);
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'Share Tech Mono', monospace;
+    letter-spacing: 1px;
+    margin-top: 6px;
+  }
+
+  /* ====== ABOUT ====== */
+  .about-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2rem 2.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+
+  .about-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 4px; height: 100%;
+    background: linear-gradient(to bottom, var(--neon), var(--neon2));
+    border-radius: 4px 0 0 4px;
+  }
+
+  .about-card:hover { border-color: var(--border2); }
+
+  .about-card p {
+    font-size: 15px;
+    color: var(--muted);
+    line-height: 1.9;
+  }
+
+  .about-card p strong, .about-card p .hl {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* ====== SKILLS SHOWCASE ====== */
+  .skills-showcase {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .skill-showcase-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1.4rem 1rem 1.2rem;
+    transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .skill-showcase-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--neon);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.35s ease;
+  }
+
+  .skill-showcase-card:hover {
+    border-color: var(--border2);
+    transform: translateY(-5px);
+    box-shadow: 0 12px 32px rgba(0,255,178,0.07);
+  }
+
+  .skill-showcase-card:hover::after { transform: scaleX(1); }
+
+  .skill-emoji {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 0.9rem;
+    line-height: 1;
+    filter: drop-shadow(0 0 8px rgba(0,255,178,0.3));
+    transition: transform 0.3s, filter 0.3s;
+  }
+
+  .skill-showcase-card:hover .skill-emoji {
+    transform: scale(1.15) rotate(-5deg);
+    filter: drop-shadow(0 0 14px rgba(0,255,178,0.5));
+  }
+
+  .skill-showcase-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0.5rem;
+    line-height: 1.3;
+    letter-spacing: 0.3px;
+  }
+
+  .skill-showcase-desc {
+    font-size: 11.5px;
+    color: var(--muted);
+    line-height: 1.65;
+  }
+
+  .tools-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+
+  @media (max-width: 900px) {
+    .skills-showcase { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  @media (max-width: 580px) {
+    .skills-showcase { grid-template-columns: repeat(2, 1fr); }
+    .skills-showcase .skill-showcase-card:last-child { grid-column: 1 / -1; }
+  }
+
+  /* ====== SKILLS (old kept for tools row) ====== */
+  .skills-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.5rem;
+    transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    background: var(--neon);
+    transform: scaleY(0);
+    transform-origin: top;
+    transition: transform 0.35s ease;
+  }
+
+  .card:hover { border-color: var(--border2); transform: translateY(-3px); box-shadow: 0 8px 30px rgba(0,255,178,0.06); }
+  .card:hover::before { transform: scaleY(1); }
+
+  .card-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--neon);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .tag {
+    display: inline-block;
+    font-size: 11px;
+    font-family: 'Share Tech Mono', monospace;
+    padding: 4px 10px;
+    border-radius: 2px;
+    margin: 3px;
+    letter-spacing: 0.5px;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .tag:hover { transform: translateY(-2px); }
+
+  .skill-tag {
+    background: rgba(0,255,178,0.06);
+    border: 1px solid rgba(0,255,178,0.2);
+    color: var(--accent);
+  }
+
+  .skill-tag:hover { box-shadow: 0 0 12px rgba(0,255,178,0.2); }
+
+  .tool-tag {
+    background: rgba(255,60,107,0.06);
+    border: 1px solid rgba(255,60,107,0.2);
+    color: #FF7A9A;
+  }
+
+  .tool-tag:hover { box-shadow: 0 0 12px rgba(255,60,107,0.2); }
+
+  /* ====== PROJECTS ====== */
+  .project-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 1rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .project-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at var(--mx, 80%) var(--my, 50%), rgba(0,255,178,0.05), transparent 60%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+  }
+
+  .project-card:hover { border-color: var(--border2); transform: translateX(6px); box-shadow: -4px 0 20px rgba(0,255,178,0.05); }
+  .project-card:hover::after { opacity: 1; }
+
+  .project-arrow {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1.2rem;
+    color: var(--neon);
+    opacity: 0;
+    transform: translateX(-8px);
+    transition: opacity 0.3s, transform 0.3s;
+    flex-shrink: 0;
+  }
+
+  .project-card:hover .project-arrow { opacity: 1; transform: translateX(0); }
+
+  .project-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+
+  .project-role {
+    font-size: 12px;
+    color: var(--neon);
+    font-family: 'Share Tech Mono', monospace;
+    letter-spacing: 1px;
+  }
+
+  .project-more {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'Share Tech Mono', monospace;
+    text-align: center;
+    padding: 0.75rem;
+    border: 1px dashed rgba(0,255,178,0.15);
+    border-radius: 4px;
+    letter-spacing: 1px;
+  }
+
+  /* ====== STRENGTHS ====== */
+  .strengths-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .strength-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1rem 1.2rem;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+    transition: border-color 0.3s, transform 0.3s;
+  }
+
+  .strength-item:hover { border-color: var(--border2); transform: translateY(-2px); }
+
+  .strength-icon {
+    color: var(--neon);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 14px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  /* ====== AVAILABILITY ====== */
+  .avail-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+
+  .avail-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(0,255,178,0.06);
+    border: 1px solid rgba(0,255,178,0.25);
+    border-radius: 2px;
+    padding: 10px 18px;
+    font-size: 13px;
+    color: var(--accent);
+    font-family: 'Share Tech Mono', monospace;
+    margin: 4px;
+    transition: background 0.2s, border-color 0.2s;
+  }
+
+  .avail-badge:hover { background: rgba(0,255,178,0.1); border-color: rgba(0,255,178,0.45); }
+
+  .dot-pulse {
+    width: 8px; height: 8px;
+    background: var(--neon);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--neon);
+    animation: pulse 2s infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 10px var(--neon); }
+    50% { opacity: 0.5; transform: scale(0.8); box-shadow: 0 0 4px var(--neon); }
+  }
+
+  /* ====== CTA ====== */
+  .cta-section {
+    background: linear-gradient(135deg, rgba(0,255,178,0.04), rgba(255,60,107,0.02));
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+    padding: 3.5rem 2rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta-section::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 500px; height: 250px;
+    background: radial-gradient(ellipse, rgba(0,255,178,0.05), transparent 70%);
+    pointer-events: none;
+  }
+
+  .cta-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: clamp(1.8rem, 5vw, 2.8rem);
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0.5rem;
+    letter-spacing: 2px;
+    position: relative;
+  }
+
+  .cta-sub {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 2.5rem;
+    font-family: 'Share Tech Mono', monospace;
+    letter-spacing: 1px;
+    position: relative;
+  }
+
+  .contact-links {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    position: relative;
+  }
+
+  /* ====== FOOTER ====== */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 1.5rem;
+    text-align: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    position: relative;
+    z-index: 2;
+  }
+
+  footer span { color: var(--neon); }
+
+  /* ====== ANIMATIONS ====== */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* ====== RESPONSIVE ====== */
+  @media (max-width: 768px) {
+    .skills-grid { grid-template-columns: 1fr; }
+    .avail-section { grid-template-columns: 1fr; }
+    .strengths-grid { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }
+    .project-card { flex-direction: column; align-items: flex-start; }
+    .about-card { padding: 1.5rem; }
+  }
+
+  @media (max-width: 480px) {
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .stat-card:last-child { grid-column: 1 / -1; }
+    .hero-cta { flex-direction: column; align-items: center; }
+    .btn { width: 100%; max-width: 280px; justify-content: center; }
+    .container { padding: 0 1rem 4rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- CUSTOM CURSOR -->
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <button class="menu-close" id="menuClose">✕</button>
+  <a href="#about" onclick="closeMobileMenu()">About</a>
+  <a href="#skills" onclick="closeMobileMenu()">Skills</a>
+  <a href="#projects" onclick="closeMobileMenu()">Projects</a>
+  <a href="#connections" onclick="closeMobileMenu()">Team</a>
+  <a href="#contact" onclick="closeMobileMenu()">Contact</a>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">RO CART</div>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#connections">Team</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <button class="nav-burger" id="burgerBtn" aria-label="Open menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="container">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="badge">🎮 Roblox Developer Portfolio</div>
+    <h1 class="hero-name">RO <span class="highlight">CART</span></h1>
+    <p class="hero-title">Luau Scripter · System Designer · Optimization Specialist</p>
+    <div class="hero-meta">
+      <div class="meta-pill">criminal4930 on Discord</div>
+      <div class="meta-pill">India · IST Timezone</div>
+      <div class="meta-pill">robusinessa@gmail.com</div>
+    </div>
+    <div class="hero-cta">
+      <a class="btn btn-primary" href="#contact"><span>Hire Me</span></a>
+      <a class="btn btn-ghost" href="#projects"><span>View Work</span></a>
+    </div>
+    <div class="scroll-hint">
+      <span>Scroll</span>
+      <div class="scroll-arrow"></div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- STATS -->
+  <div class="stats-grid" style="margin-bottom: 5rem;">
+    <div class="stat-card reveal">
+      <div class="stat-num">1.5+</div>
+      <div class="stat-label">Years Experience</div>
+    </div>
+    <div class="stat-card reveal reveal-delay-1">
+      <div class="stat-num">2+</div>
+      <div class="stat-label">Notable Projects</div>
+    </div>
+    <div class="stat-card reveal reveal-delay-2">
+      <div class="stat-num">100%</div>
+      <div class="stat-label">Quality Focused</div>
+    </div>
+  </div>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="section-header reveal">
+      <span class="section-num">01 //</span>
+      <h2 class="section-title">👤 About Me</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="about-card reveal">
+      <p>I am a dedicated Roblox Developer with over <span class="hl">1.5 years of experience</span> specializing in scripting and system design. I focus on building <span class="hl">clean, optimized, and scalable systems</span> that enhance gameplay and performance.<br><br>My goal is to deliver high-quality work rather than just completing tasks. I genuinely enjoy the craft, and that passion shows in every line of code I write. I value long-term relationships and professional work ethics above all.</p>
+    </div>
+  </section>
+
+  <!-- SKILLS -->
+  <section id="skills">
+    <div class="section-header reveal">
+      <span class="section-num">02 //</span>
+      <h2 class="section-title">⚡ Skills & Tools</h2>
+      <div class="section-line"></div>
+    </div>
+
+    <!-- 5-card emoji showcase -->
+    <div class="skills-showcase">
+      <div class="skill-showcase-card reveal">
+        <span class="skill-emoji">🧩</span>
+        <div class="skill-showcase-title">Core Technical Skills</div>
+        <div class="skill-showcase-desc">Lua / Luau scripting, OOP architecture, ModuleScripts, RemoteEvents, and clean Roblox Studio workflows.</div>
+      </div>
+      <div class="skill-showcase-card reveal reveal-delay-1">
+        <span class="skill-emoji">⚙️</span>
+        <div class="skill-showcase-title">Game Systems & Design</div>
+        <div class="skill-showcase-desc">Combat, inventory, DataStore persistence, server-client communication, and reusable system toolkits.</div>
+      </div>
+      <div class="skill-showcase-card reveal reveal-delay-2">
+        <span class="skill-emoji">🎯</span>
+        <div class="skill-showcase-title">IK & Animation</div>
+        <div class="skill-showcase-desc">Inverse Kinematics systems, smooth character rigs, and responsive animation blending for immersive gameplay.</div>
+      </div>
+      <div class="skill-showcase-card reveal reveal-delay-3">
+        <span class="skill-emoji">🖥️</span>
+        <div class="skill-showcase-title">UI & Interaction</div>
+        <div class="skill-showcase-desc">Responsive ScreenGuis, animated menus, HUD elements, and polished in-game interfaces with smooth logic.</div>
+      </div>
+      <div class="skill-showcase-card reveal reveal-delay-4">
+        <span class="skill-emoji">🚀</span>
+        <div class="skill-showcase-title">Optimization & Performance</div>
+        <div class="skill-showcase-desc">Memory management, lag reduction, efficient rendering, and scalable architecture for smooth gameplay.</div>
+      </div>
+    </div>
+
+    <!-- Tools row -->
+    <div class="card reveal" style="margin-top: 0.5rem;">
+      <div class="card-label">🛠️ Tools & Tech</div>
+      <div class="tools-row">
+        <span class="tag tool-tag">🎮 Roblox Studio</span>
+        <span class="tag tool-tag">📜 Lua / Luau</span>
+        <span class="tag tool-tag">🐙 GitHub</span>
+        <span class="tag skill-tag">🔧 Debugging</span>
+        <span class="tag skill-tag">📐 System Design</span>
+        <span class="tag skill-tag">🧠 Problem Solving</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section id="projects">
+    <div class="section-header reveal">
+      <span class="section-num">03 //</span>
+      <h2 class="section-title">🎮 Notable Projects</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="project-card reveal">
+      <div>
+        <div class="project-title">Project Power</div>
+        <div class="project-role">Scripter — Contributed core scripting systems</div>
+      </div>
+      <div class="project-arrow">→</div>
+    </div>
+    <div class="project-card reveal reveal-delay-1">
+      <div>
+        <div class="project-title">Cowboy Game</div>
+        <div class="project-role">Scripter — Developed gameplay scripting systems</div>
+      </div>
+      <div class="project-arrow">→</div>
+    </div>
+    <div class="project-more reveal reveal-delay-2">
+      + More projects available on request · Game links & GitHub on demand
+    </div>
+  </section>
+
+  <!-- STRENGTHS + AVAILABILITY -->
+  <section id="strengths">
+    <div class="section-header reveal">
+      <span class="section-num">04 //</span>
+      <h2 class="section-title">⭐ Why Hire Me</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="strengths-grid" style="margin-bottom: 2rem;">
+      <div class="strength-item reveal">
+        <span class="strength-icon">⚡</span>
+        Strong focus on system optimization and performance
+      </div>
+      <div class="strength-item reveal reveal-delay-1">
+        <span class="strength-icon">✨</span>
+        Clean, scalable scripting practices
+      </div>
+      <div class="strength-item reveal reveal-delay-2">
+        <span class="strength-icon">🖥️</span>
+        UI logic and gameplay system expertise
+      </div>
+      <div class="strength-item reveal reveal-delay-3">
+        <span class="strength-icon">🔄</span>
+        Reliable, consistent, and always improving
+      </div>
+      <div class="strength-item reveal">
+        <span class="strength-icon">🤝</span>
+        Teamwork and project coordination
+      </div>
+      <div class="strength-item reveal reveal-delay-1">
+        <span class="strength-icon">❤️</span>
+        Quality over money — passion-driven development
+      </div>
+    </div>
+
+    <div class="avail-section reveal">
+      <div class="card">
+        <div class="card-label">📅 Availability</div>
+        <div style="margin-bottom: 1rem;">
+          <div class="avail-badge"><div class="dot-pulse"></div>Open to Hire</div>
+        </div>
+        <div>
+          <span class="tag skill-tag">Freelance</span>
+          <span class="tag skill-tag">Long-term</span>
+          <span class="tag skill-tag">Collaboration</span>
+        </div>
+      </div>
+      <div class="card reveal reveal-delay-1">
+        <div class="card-label">💰 Pricing</div>
+        <p style="font-size: 14px; color: var(--muted); line-height: 1.8;">
+          Flexible pricing depending on project scope.<br>
+          <span style="color: var(--accent);">Small upfront payment</span> required for project confirmation.<br><br>
+          Also available as a <span style="color: var(--accent);">Roblox scripting teacher</span>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONNECTIONS -->
+  <section id="connections">
+    <div class="section-header reveal">
+      <span class="section-num">05 //</span>
+      <h2 class="section-title">🤝 My Connections</h2>
+      <div class="section-line"></div>
+    </div>
+    <p class="reveal" style="font-size:14px; color:var(--muted); margin-bottom:1.5rem; font-family:'Share Tech Mono',monospace; letter-spacing:1px;">
+      I work alongside trusted friends with serious experience. Need a full team? I've got you covered.
+    </p>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
+
+      <div class="card reveal" style="position:relative; overflow:hidden;">
+        <div style="position:absolute; top:0; right:0; background:rgba(0,255,178,0.07); border-left:1px solid var(--border); border-bottom:1px solid var(--border); padding:4px 10px; font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--neon); letter-spacing:2px; border-radius:0 4px 0 4px;">SCRIPTER</div>
+        <div style="display:flex; align-items:center; gap:14px; margin-bottom:1.1rem;">
+          <div style="width:52px; height:52px; border-radius:50%; background:rgba(0,255,178,0.08); border:1.5px solid rgba(0,255,178,0.3); display:flex; align-items:center; justify-content:center; font-size:1.5rem; flex-shrink:0;">💻</div>
+          <div>
+            <div style="font-family:'Rajdhani',sans-serif; font-size:1.2rem; font-weight:700; color:#fff; letter-spacing:0.5px;">Toastystrudel27</div>
+            <div style="font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--neon); letter-spacing:1px; margin-top:2px;">4 Years Experience</div>
+          </div>
+        </div>
+        <div style="border-top:1px solid var(--border); padding-top:1rem;">
+          <div style="font-size:13px; color:var(--muted); line-height:1.7; margin-bottom:0.8rem;">A highly experienced Roblox scripter specializing in complex game systems, clean Luau code, and advanced gameplay mechanics.</div>
+          <div>
+            <span class="tag skill-tag">⚙️ Scripting</span>
+            <span class="tag skill-tag">🎮 Game Systems</span>
+            <span class="tag skill-tag">4 Yrs Exp</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card reveal reveal-delay-1" style="position:relative; overflow:hidden;">
+        <div style="position:absolute; top:0; right:0; background:rgba(255,60,107,0.07); border-left:1px solid rgba(255,60,107,0.2); border-bottom:1px solid rgba(255,60,107,0.2); padding:4px 10px; font-family:'Share Tech Mono',monospace; font-size:10px; color:#FF7A9A; letter-spacing:2px; border-radius:0 4px 0 4px;">MODELLER</div>
+        <div style="display:flex; align-items:center; gap:14px; margin-bottom:1.1rem;">
+          <div style="width:52px; height:52px; border-radius:50%; background:rgba(255,60,107,0.08); border:1.5px solid rgba(255,60,107,0.3); display:flex; align-items:center; justify-content:center; font-size:1.5rem; flex-shrink:0;">🎨</div>
+          <div>
+            <div style="font-family:'Rajdhani',sans-serif; font-size:1.2rem; font-weight:700; color:#fff; letter-spacing:0.5px;">mcdowell001</div>
+            <div style="font-family:'Share Tech Mono',monospace; font-size:11px; color:#FF7A9A; letter-spacing:1px; margin-top:2px;">3 Years Experience</div>
+          </div>
+        </div>
+        <div style="border-top:1px solid var(--border); padding-top:1rem;">
+          <div style="font-size:13px; color:var(--muted); line-height:1.7; margin-bottom:0.8rem;">A skilled Roblox modeller with a sharp eye for detail, creating immersive environments, props, and character assets.</div>
+          <div>
+            <span class="tag tool-tag">🏗️ 3D Modelling</span>
+            <span class="tag tool-tag">🌍 Environment</span>
+            <span class="tag tool-tag">3 Yrs Exp</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- CONTACT CTA -->
+  <section id="contact">
+    <div class="cta-section reveal">
+      <div class="cta-title">🚀 Ready to Build?</div>
+      <div class="cta-sub">Let's create something optimized, clean, and unforgettable ✨</div>
+      <div class="contact-links">
+        <a class="btn btn-primary" href="https://discord.com/users/criminal4930"><span>💬 Discord: criminal4930</span></a>
+        <a class="btn btn-ghost" href="mailto:robusinessa@gmail.com"><span>📧 robusinessa@gmail.com</span></a>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  Built with ❤️ & passion · <span>Ro Cart</span> · Roblox Developer 🎮 · India 🇮🇳
+</footer>
+
+<script>
+  // ── CUSTOM CURSOR ──
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursor-ring');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+
+  if (cursor && ring) {
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      cursor.style.left = mx + 'px';
+      cursor.style.top = my + 'px';
+    });
+
+    function animateRing() {
+      rx += (mx - rx) * 0.12;
+      ry += (my - ry) * 0.12;
+      ring.style.left = rx + 'px';
+      ring.style.top = ry + 'px';
+      requestAnimationFrame(animateRing);
+    }
+    animateRing();
+
+    document.querySelectorAll('a, button, .tag, .stat-card, .project-card, .strength-item, .card').forEach(el => {
+      el.addEventListener('mouseenter', () => { cursor.classList.add('hovered'); ring.classList.add('hovered'); });
+      el.addEventListener('mouseleave', () => { cursor.classList.remove('hovered'); ring.classList.remove('hovered'); });
+    });
+
+    document.addEventListener('mousedown', () => cursor.classList.add('clicked'));
+    document.addEventListener('mouseup', () => cursor.classList.remove('clicked'));
+  }
+
+  // ── SCROLL REVEAL ──
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  reveals.forEach(el => observer.observe(el));
+
+  // ── PROJECT CARD MOUSE GLOW ──
+  document.querySelectorAll('.project-card').forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const rect = card.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width * 100).toFixed(1);
+      const y = ((e.clientY - rect.top) / rect.height * 100).toFixed(1);
+      card.style.setProperty('--mx', x + '%');
+      card.style.setProperty('--my', y + '%');
+    });
+  });
+
+  // ── MOBILE MENU ──
+  const burgerBtn = document.getElementById('burgerBtn');
+  const mobileMenu = document.getElementById('mobileMenu');
+  const menuClose = document.getElementById('menuClose');
+
+  burgerBtn.addEventListener('click', () => mobileMenu.classList.add('open'));
+  menuClose.addEventListener('click', closeMobileMenu);
+
+  function closeMobileMenu() { mobileMenu.classList.remove('open'); }
+</script>
+</body>
+</html>
